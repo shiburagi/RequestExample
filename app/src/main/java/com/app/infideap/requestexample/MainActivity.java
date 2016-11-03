@@ -36,8 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected Void doInBackground(Void... voids) {
-                Request request = Request.getInstance();
-                final long millis = System.currentTimeMillis();
+                final Request request = Request.getInstance();
                 String result = null;
                 switch (type) {
                     case 1:
@@ -82,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                         textView.setText(String.format(
                                 Locale.getDefault(),
                                 "Time : %d ms\n\nResponse :\n",
-                                System.currentTimeMillis() - millis
+                                request.getResponseTime()
                         ));
                         textView.append(finalResult);
                     }

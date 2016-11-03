@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
+import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -24,7 +25,7 @@ import okhttp3.Response;
  */
 
 public class Request {
-
+    private static final String TAG = Request.class.getSimpleName();
 
     public static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
@@ -44,6 +45,8 @@ public class Request {
         instance = new Request();
     }
 
+    private long responseTime;
+
     public static Request getInstance() {
         return instance;
     }
@@ -53,6 +56,7 @@ public class Request {
     }
 
     public String openConnection(String url, String method, String json) throws IOException {
+        responseTime = 0;
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
@@ -77,7 +81,7 @@ public class Request {
 
 
         }
-
+        long millis = System.currentTimeMillis();
         con.connect();
         InputStream in;
         int status = con.getResponseCode();
@@ -87,7 +91,9 @@ public class Request {
         else
             in = con.getInputStream();
 
-        return getResponse(in).toString();
+        String result = getResponse(in).toString();
+        responseTime = System.currentTimeMillis() - millis;
+        return result;
     }
 
     /**
@@ -98,6 +104,7 @@ public class Request {
      * @throws IOException
      */
     private StringBuilder getResponse(InputStream inputStream) throws IOException {
+
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(inputStream));
         String inputLine;
@@ -112,15 +119,20 @@ public class Request {
 
 
     public String requestIon(Context context, String url, String method, Object object) throws ExecutionException, InterruptedException {
+        responseTime = 0;
         Builders.Any.B b = Ion.with(context).load(method, url);
         if (object != null) {
             b.setJsonPojoBody(object);
         }
-        return b.asString().get();
+        long millis = System.currentTimeMillis();
+        String response = b.asString().get();
+        responseTime = System.currentTimeMillis() - millis;
+        return response;
     }
 
 
     public String requestOkHttp(String url, String method, String json) throws IOException {
+        responseTime = 0;
         RequestBody requestBody;
         requestBody = METHOD_POST.equals(method) || METHOD_PUT.equals(method) ?
                 RequestBody.create(JSON, json == null ? "" : json) : null;
@@ -131,10 +143,16 @@ public class Request {
         requestBuilder.method(method, requestBody);
 
         OkHttpClient client = new OkHttpClient();
+        Call call = client.newCall(requestBuilder.build());
 
-        Response response = client.newCall(requestBuilder.build()).execute();
-        return response.body().string();
+        long millis = System.currentTimeMillis();
+        Response response = call.execute();
+        String result = response.body().string();
+        responseTime = System.currentTimeMillis() - millis;
+        return result;
     }
 
-
+    public long getResponseTime() {
+        return responseTime;
+    }
 }

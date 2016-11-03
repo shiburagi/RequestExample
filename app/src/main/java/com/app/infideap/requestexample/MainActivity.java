@@ -20,17 +20,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = (TextView)findViewById(R.id.textView_result);
+        textView = (TextView) findViewById(R.id.textView_result);
     }
-    public void openConnection(View view){
+
+    public void openConnection(View view) {
         request(0);
     }
-    public void ion(View view){
+
+    public void ion(View view) {
         request(1);
     }
-    public void okHttp(View view){
+
+    public void okHttp(View view) {
         request(2);
     }
+
     private void request(final int type) {
         new AsyncTask<Void, Void, Void>() {
 
@@ -83,7 +87,8 @@ public class MainActivity extends AppCompatActivity {
                                 "Time : %d ms\n\nResponse :\n",
                                 request.getResponseTime()
                         ));
-                        textView.append(finalResult);
+                        if (finalResult != null)
+                            textView.append(finalResult);
                     }
                 });
                 return null;

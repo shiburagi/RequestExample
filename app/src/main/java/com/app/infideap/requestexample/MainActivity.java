@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                                 "Time : %d ms\n\nResponse :\n",
                                 request.getResponseTime()
                         ));
+
                         if (finalResult != null)
                             textView.append(finalResult);
                     }
